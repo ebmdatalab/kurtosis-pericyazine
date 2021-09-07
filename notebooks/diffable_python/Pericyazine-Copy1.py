@@ -14,11 +14,10 @@
 #     name: python3
 # ---
 
-# This notebook identifies practices as part of our outlier detection who prescribed Pericyazine. The intention is that we write to them and outlying CCGs to ascertain the reasons why they use this so much compared to their peers.
+# This notebook identifies practices as part of our outlier detection who prescribed promazine. The intention is that we write to them and outlying CCGs to ascertain the reasons why they use this so much compared to their peers.
 
 # + trusted=true
 #import libraries required for analysis
-import warnings
 import os
 import pandas as pd
 import numpy as np
@@ -26,13 +25,9 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.dates import DateFormatter
 from ebmdatalab import bq, charts, maps
-import glob
-import geopandas as gpd
-import matplotlib.gridspec as gridspec
-from pathlib import Path
 # -
 
-# Data Extract Here we identify all pericyazine prescribing. We identify all prescribing to generate measures for letters.
+# Data Extract Here we identify all promazine prescribing. We identify all prescribing to generate measures for letters.
 
 # + trusted=true
 #code from original notebook - not used as CCG codes changed 
@@ -47,7 +42,7 @@ from pathlib import Path
 #  address4, 
 #  address5, 
 #  postcode,
-#  SUM(items) AS total_pericyazine
+#  SUM(items) AS total_promzazine
 #FROM
 #  ebmdatalab.hscic.normalised_prescribing_standard AS presc
 #INNER JOIN
@@ -56,7 +51,7 @@ from pathlib import Path
 #  presc.practice = prac.code
 #  AND (prac.setting = 4)
 #WHERE
-#  bnf_code LIKE "0402010P0%" 
+#  bnf_code LIKE "0402010S0%" 
 ###  AND
 ### (presc.month >= "2019-03-01" and presc.month  <= "2019-06-01")
 # ## AND items > 1
@@ -75,26 +70,26 @@ from pathlib import Path
 #  practice
 #"""
 
-#pericyazine = bq.cached_read(sql, csv_path='pericyazine_df.csv')
-#pericyazine['month'] = pericyazine['month'].astype('datetime64[ns]')
-#pericyazine.head(10)
-importfile = os.path.join("..","data","pericyazine_df.csv") #set path for data cache
-pericyazine = pd.read_csv(importfile)
-pericyazine['month'] = pericyazine['month'].astype('datetime64[ns]')
-pericyazine.head(10)
+#promazine = bq.cached_read(sql, csv_path='pericyazine_df.csv')
+#prmazine['month'] = pericyazine['month'].astype('datetime64[ns]')
+#promazine.head(10)
+importfile = os.path.join("..","data","promazine_df.csv") #set path for data cache
+promazine = pd.read_csv(importfile)
+promazine['month'] = promazine['month'].astype('datetime64[ns]')
+promazine.head(10)
 # -
 
-# Here we identify the practices for writing to based on criteria in out methodology
+# Here we identify the practices for writing to based on criteria in our methodology
 #
 # - prescribing in last quarter
 # - at least 1 item
 
 # + trusted=true
-pericyazine_prescribers = pericyazine.loc[(pericyazine["month"]>= "2019-03-01") & (pericyazine["month"] <= "2019-06-01") & (pericyazine["total_pericyazine"] > 1)]
-pericyazine_prescribers.head()
+promazine_prescribers = promazine.loc[(promazine["month"]>= "2019-03-01") & (promazine["month"] <= "2019-06-01") & (promazine["total_promazine"] > 1)]
+promazine_prescribers.head()
 
 # + trusted=true
-pericyazine_prescribers['practice'].nunique()
+promazine_prescribers['practice'].nunique()
 
 # + trusted=true
 #code from old notebook - used csvs created at the time
@@ -120,84 +115,70 @@ listsize_df['month'] = listsize_df['month'].astype('datetime64[ns]')
 
 # + trusted=true
 #merge dataframes so we can do measures with deciles
-pericyazine_per_1000 = pd.merge(left = listsize_df, right = pericyazine, on=['month', 'practice'], how = 'left')
-pericyazine_per_1000['pericyazine_per_1000'] = 1000* (pericyazine_per_1000['total_pericyazine']/pericyazine_per_1000['list_size'])
-pericyazine_per_1000['pericyazine_per_1000'] = pericyazine_per_1000['pericyazine_per_1000'].fillna(0)
-pericyazine_per_1000.head(5)
+promazine_per_1000 = pd.merge(left = listsize_df, right = promazine, on=['month', 'practice'], how = 'left')
+promazine_per_1000['promazine_per_1000'] = 1000* (promazine_per_1000['total_promazine']/promazine_per_1000['list_size'])
+promazine_per_1000['promazine_per_1000'] = promazine_per_1000['promazine_per_1000'].fillna(0)
+promazine_per_1000.head(5)
 
 # + trusted=true
-exportfile = os.path.join("..","data","pericyazine_per_1000.csv") #set path for data cache
-pericyazine_per_1000.to_csv(exportfile,index=False)
+exportfile = os.path.join("..","data","promazine_per_1000.csv") #set path for data cache
+promazine_per_1000.to_csv(exportfile,index=False)
 
 # + trusted=true
-with warnings.catch_warnings():  # I'm a context manager
-    warnings.simplefilter("ignore")  # Silence!
-
-    #create sample deciles chart
-    charts.deciles_chart(
-            ccg_pericyazine,
-            period_column='month',
-            column='pericyazine_per_1000',
-            title="Items for Pericyazine per 1000 patients (CCG) ",
-            show_outer_percentiles=True)
-
-    #add in example Islington is 08H
-    df_subject = ccg_pericyazine.loc[ccg_pericyazine['pct'] == '08H']
-    plt.plot(df_subject['month'], df_subject['pericyazine_per_1000'], 'r--')
-    plt.show()
-
-
-
-
-
-
-
 #create sample deciles chart
 charts.deciles_chart(
-        pericyazine_per_1000,
+        promazine_per_1000,
         period_column='month',
-        column='pericyazine_per_1000',
-        title="Items for Pericyazine per 1000 patients (practice)",
+        column='promazine_per_1000',
+        title="Items for promazine per 1000 patients (practice)",
         show_outer_percentiles=True)
 
 #add in example https://openprescribing.net/practice/D82099/ from West Norfolk
-df_subject = pericyazine_per_1000.loc[pericyazine_per_1000['practice'] == 'D82099']
-plt.plot(df_subject['month'], df_subject['pericyazine_per_1000'], 'r--')
+df_subject = promazine_per_1000.loc[promazine_per_1000['practice'] == 'D82099']
+plt.plot(df_subject['month'], df_subject['promazine_per_1000'], 'r--')
 plt.show()
 
 # + trusted=true
-ccg_pericyazine = pericyazine_per_1000.groupby(['pct_x', 'month']).sum().reset_index()
-ccg_pericyazine['pericyazine_per_1000'] = 1000* (ccg_pericyazine['total_pericyazine']/ccg_pericyazine['list_size'])
-ccg_pericyazine['pericyazine_per_1000'] = ccg_pericyazine['pericyazine_per_1000'].fillna(0)
-ccg_pericyazine.rename(columns = {'pct_x':'pct'}, inplace = True)
-ccg_pericyazine = ccg_pericyazine.loc[(ccg_pericyazine["list_size"] >= 2000)]
-ccg_pericyazine.head(5)
+ccg_promazine = promazine_per_1000.groupby(['pct_x', 'month']).sum().reset_index()
+ccg_promazine['promazine_per_1000'] = 1000* (ccg_promazine['total_promazine']/ccg_promazine['list_size'])
+ccg_promazine['promazine_per_1000'] = ccg_promazine['promazine_per_1000'].fillna(0)
+ccg_promazine.rename(columns = {'pct_x':'pct'}, inplace = True)
+ccg_promazine = ccg_promazine.loc[(ccg_promazine["list_size"] >= 2000)]
+ccg_promazine.head(5)
 
 # + trusted=true
 #create sample deciles chart
 charts.deciles_chart(
-        ccg_pericyazine,
+        ccg_promazine,
         period_column='month',
-        column='pericyazine_per_1000',
-        title="Items for Pericyazine per 1000 patients (CCG) ",
+        column='promazine_per_1000',
+        title="Items for promazine per 1000 patients (CCG) ",
         show_outer_percentiles=True)
 
 #add in example Islington is 08H
-df_subject = ccg_pericyazine.loc[ccg_pericyazine['pct'] == '08H']
-plt.plot(df_subject['month'], df_subject['pericyazine_per_1000'], 'r--')
+df_subject = ccg_promazine.loc[ccg_promazine['pct'] == '08H']
+plt.plot(df_subject['month'], df_subject['promazine_per_1000'], 'r--')
 plt.show()
 
 # + trusted=true
 ## here we look at CCGs that are outliers.
-latest_ccg.sort_values("total_pericyazine", ascending=False).head(250)
+latest_ccg = ccg_promazine.loc[(ccg_promazine["month"] == "2017-08-01")]
+latest_ccg.sort_values("total_promazine", ascending=False).head(250)
 
 # + trusted=true
 exportfile = os.path.join("..","data","latest_ccg.csv") #set path for data cache
 latest_ccg.to_csv(exportfile,index=False)
 
-
 # + trusted=true
 #create choropeth map of cost per 1000 patients using bespoke map function (derived from ebmdatalab library)
+import glob
+import geopandas as gpd
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
+from pathlib import Path
+
 
 def ccg_map_bespoke(
     df,
@@ -329,13 +310,13 @@ def ccg_map_bespoke(
 # + trusted=true
 plt = ccg_map_bespoke(
     latest_ccg, 
-    title="Pericyazine items per 1000 patients (August 2017)", 
+    title="Promazine items per 1000 patients (August 2017)", 
     map_year = '2018',
-    column='pericyazine_per_1000', region='East of England', separate_region=True,
+    column='promazine_per_1000', region='North West', separate_region=True,
     plot_options={'cmap': 'coolwarm'}
     )
-exportfile = os.path.join("..","data","pericyazine_map.png")
+exportfile = os.path.join("..","data","promazine_map.png")
 plt.savefig(exportfile, dpi=300)
-# +
+# -
 
 
