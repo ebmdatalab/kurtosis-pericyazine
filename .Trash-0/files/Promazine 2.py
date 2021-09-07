@@ -14,6 +14,8 @@
 #     name: python3
 # ---
 
+# ### Promazine prescribing
+
 # This notebook identifies practices as part of our outlier detection who prescribed promazine. The intention is that we write to them and outlying CCGs to ascertain the reasons why they use this so much compared to their peers.
 
 # + trusted=true
@@ -25,9 +27,16 @@ import matplotlib
 import matplotlib.pyplot as plt
 from matplotlib.dates import DateFormatter
 from ebmdatalab import bq, charts, maps
+import glob
+import geopandas as gpd
+import matplotlib.gridspec as gridspec
+from pathlib import Path
+import warnings
 # -
 
-# Data Extract Here we identify all promazine prescribing. We identify all prescribing to generate measures for letters.
+# #### Data Extract
+#
+# Here we identify all promazine prescribing.
 
 # + trusted=true
 #code from original notebook - not used as CCG codes changed 
@@ -73,6 +82,7 @@ from ebmdatalab import bq, charts, maps
 #promazine = bq.cached_read(sql, csv_path='pericyazine_df.csv')
 #prmazine['month'] = pericyazine['month'].astype('datetime64[ns]')
 #promazine.head(10)
+#open previously created data and create dataframe
 importfile = os.path.join("..","data","promazine_df.csv") #set path for data cache
 promazine = pd.read_csv(importfile)
 promazine['month'] = promazine['month'].astype('datetime64[ns]')
@@ -90,6 +100,11 @@ promazine_prescribers.head()
 
 # + trusted=true
 promazine_prescribers['practice'].nunique()
+# -
+
+# #### Create list size
+#
+# Here we create the list size data in order to calculate items per 1000 patients
 
 # + trusted=true
 #code from old notebook - used csvs created at the time
@@ -109,6 +124,8 @@ promazine_prescribers['practice'].nunique()
 #"""
 #listsize_df = bq.cached_read(sql2, csv_path='list_size.csv')
 #listsize_df['month'] = listsize_df['month'].astype('datetime64[ns]')
+
+#open previously created data and create dataframe
 importfile = os.path.join("..","data","list_size.csv") #set path for data cache
 listsize_df = pd.read_csv(importfile)
 listsize_df['month'] = listsize_df['month'].astype('datetime64[ns]')
@@ -121,22 +138,26 @@ promazine_per_1000['promazine_per_1000'] = promazine_per_1000['promazine_per_100
 promazine_per_1000.head(5)
 
 # + trusted=true
+#create promazine_per_1000 csv
 exportfile = os.path.join("..","data","promazine_per_1000.csv") #set path for data cache
 promazine_per_1000.to_csv(exportfile,index=False)
 
 # + trusted=true
-#create sample deciles chart
-charts.deciles_chart(
-        promazine_per_1000,
-        period_column='month',
-        column='promazine_per_1000',
-        title="Items for promazine per 1000 patients (practice)",
-        show_outer_percentiles=True)
+with warnings.catch_warnings():  #the ebmdatalab library is creating deprecation warnings - this silences them
+    warnings.simplefilter("ignore") 
 
-#add in example https://openprescribing.net/practice/D82099/ from West Norfolk
-df_subject = promazine_per_1000.loc[promazine_per_1000['practice'] == 'D82099']
-plt.plot(df_subject['month'], df_subject['promazine_per_1000'], 'r--')
-plt.show()
+    #create sample deciles chart
+    charts.deciles_chart(
+            promazine_per_1000,
+            period_column='month',
+            column='promazine_per_1000',
+            title="Items for promazine per 1000 patients (practice)",
+            show_outer_percentiles=True)
+
+    #add in example https://openprescribing.net/practice/P82031/ from Bolton
+    df_subject = promazine_per_1000.loc[promazine_per_1000['practice'] == 'P82031']#D82099West Norfolk
+    plt.plot(df_subject['month'], df_subject['promazine_per_1000'], 'r--')
+    plt.show()
 
 # + trusted=true
 ccg_promazine = promazine_per_1000.groupby(['pct_x', 'month']).sum().reset_index()
@@ -147,38 +168,32 @@ ccg_promazine = ccg_promazine.loc[(ccg_promazine["list_size"] >= 2000)]
 ccg_promazine.head(5)
 
 # + trusted=true
-#create sample deciles chart
-charts.deciles_chart(
-        ccg_promazine,
-        period_column='month',
-        column='promazine_per_1000',
-        title="Items for promazine per 1000 patients (CCG) ",
-        show_outer_percentiles=True)
+with warnings.catch_warnings():  # I'm a context manager
+    warnings.simplefilter("ignore")  # Silence!
 
-#add in example Islington is 08H
-df_subject = ccg_promazine.loc[ccg_promazine['pct'] == '08H']
-plt.plot(df_subject['month'], df_subject['promazine_per_1000'], 'r--')
-plt.show()
+    #create sample deciles chart
+    charts.deciles_chart(
+            ccg_promazine,
+            period_column='month',
+            column='promazine_per_1000',
+            title="Items for promazine per 1000 patients (CCG) ",
+            show_outer_percentiles=True)
+
+    #add in example Bolton is 00T
+    df_subject = ccg_promazine.loc[ccg_promazine['pct'] == '00T']
+    plt.plot(df_subject['month'], df_subject['promazine_per_1000'], 'r--')
+    plt.show()
 
 # + trusted=true
 ## here we look at CCGs that are outliers.
 latest_ccg = ccg_promazine.loc[(ccg_promazine["month"] == "2017-08-01")]
 latest_ccg.sort_values("total_promazine", ascending=False).head(250)
-
-# + trusted=true
 exportfile = os.path.join("..","data","latest_ccg.csv") #set path for data cache
 latest_ccg.to_csv(exportfile,index=False)
 
+
 # + trusted=true
 #create choropeth map of cost per 1000 patients using bespoke map function (derived from ebmdatalab library)
-import glob
-import geopandas as gpd
-import numpy as np
-import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.gridspec as gridspec
-from pathlib import Path
-
 
 def ccg_map_bespoke(
     df,
@@ -317,6 +332,6 @@ plt = ccg_map_bespoke(
     )
 exportfile = os.path.join("..","data","promazine_map.png")
 plt.savefig(exportfile, dpi=300)
-# -
+# + trusted=true
 
 

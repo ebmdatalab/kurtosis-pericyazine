@@ -14,9 +14,9 @@
 #     name: python3
 # ---
 
-# ## Pericyazine prescribing
+# ## Antipsychotic outlier prescribing
 
-# This notebook identifies practices as part of our outlier detection who prescribed pericyazine.
+# This notebook identifies practices as part of our outlier detection who prescribed promazine and pericyazine.
 
 # + trusted=true
 #import libraries required for analysis
@@ -32,20 +32,21 @@ import geopandas as gpd
 import matplotlib.gridspec as gridspec
 from pathlib import Path
 import warnings
+
 # -
 
 # #### Data Extract
 #
-# Here we identify all pericyazine prescribing.
+# Here we identify all promazine prescribing.
 
 # + trusted=true
-#code from original notebook - not used as CCG codes changed 
 sql = """
 SELECT
 pct,
 ccgs.name as ccg_name,
 practice,
 prac.name,
+SUM(CASE WHEN bnf_code LIKE '0402010S0%' then items ELSE 0 END) as total_promazine,
 SUM(CASE WHEN bnf_code LIKE '0402010P0%' then items ELSE 0 END) as total_pericyazine, 
 SUM(items) AS total_antipsy
 FROM ebmdatalab.hscic.all_prescribing AS presc
@@ -71,26 +72,17 @@ ORDER BY
   practice
 """
 
-pericyazine = bq.cached_read(sql, csv_path='pericyazine_df.csv')
-pericyazine.head(10)
+anti_psy = bq.cached_read(sql, csv_path='anti_psy_df.csv')
 
 # + trusted=true
-pericyazine_prescribers = pericyazine.loc[(pericyazine["total_pericyazine"] > 1)]
-pericyazine_prescribers.head()
-pericyazine_prescribers['practice'].nunique()
-
-# + trusted=true
-ccg_pericyazine = pericyazine.groupby(['pct', 'ccg_name']).sum().reset_index()
-ccg_pericyazine['pericyazine_per_1000_items'] = 1000* (ccg_pericyazine['total_pericyazine']/ccg_pericyazine['total_antipsy'])
-ccg_pericyazine.head(5)
-
-# + trusted=true
-exportfile = os.path.join("..","data","latest_ccg.csv") #set path for data cache
-latest_ccg.to_csv(exportfile,index=False)
+ccg_anti_psy = anti_psy.groupby(['pct', 'ccg_name']).sum().reset_index()
+ccg_anti_psy['promazine_per_1000_items'] = 1000* (ccg_anti_psy['total_promazine']/ccg_anti_psy['total_antipsy'])
+ccg_anti_psy['pericyazine_per_1000_items'] = 1000* (ccg_anti_psy['total_pericyazine']/ccg_anti_psy['total_antipsy'])
+ccg_anti_psy.head(5)
 
 
 # + trusted=true
-#create choropeth map of pericyazine rx per 1000 antipsychotic prescriptions using bespoke map function (derived from ebmdatalab library)
+#create choropeth map of rx per 1000 antipsychotic prescriptions using bespoke map function (derived from ebmdatalab library)
 
 def ccg_map_bespoke(
     df,
@@ -222,14 +214,24 @@ def ccg_map_bespoke(
 
 # + trusted=true
 plt = ccg_map_bespoke(
-    ccg_pericyazine, 
-    title="Pericyclazine items per 1000 antipsychotic prescriptions\n(June-August 2017)", 
+    ccg_anti_psy, 
+    title="b) promazine items per 1000 antipsychotic prescriptions\n(June-August 2017)", 
+    map_year = '2018',
+    column='promazine_per_1000_items', region='North West', separate_region=True,
+    plot_options={'cmap': 'coolwarm'}
+    )
+exportfile = os.path.join("..","data","promazine_map.png")
+plt.savefig(exportfile, dpi=300)
+# + trusted=true
+plt = ccg_map_bespoke(
+    ccg_anti_psy, 
+    title="a) pericyazine items per 1000 antipsychotic prescriptions\n(June-August 2017)", 
     map_year = '2018',
     column='pericyazine_per_1000_items', region='East of England', separate_region=True,
     plot_options={'cmap': 'coolwarm'}
     )
 exportfile = os.path.join("..","data","pericyazine_map.png")
 plt.savefig(exportfile, dpi=300)
-# + trusted=true
 
+# -
 

@@ -16,7 +16,7 @@
 
 # ## Pericyazine prescribing
 
-# This notebook identifies practices as part of our outlier detection who prescribed pericyazine.
+# This notebook identifies practices as part of our outlier detection who prescribed pericyazine. The intention is that we write to them and outlying CCGs to ascertain the reasons why they use this so much compared to their peers.
 
 # + trusted=true
 #import libraries required for analysis
@@ -81,7 +81,7 @@ pericyazine_prescribers['practice'].nunique()
 
 # + trusted=true
 ccg_pericyazine = pericyazine.groupby(['pct', 'ccg_name']).sum().reset_index()
-ccg_pericyazine['pericyazine_per_1000_items'] = 1000* (ccg_pericyazine['total_pericyazine']/ccg_pericyazine['total_antipsy'])
+ccg_pericyazine['percent_pericyazine'] = 100* (ccg_pericyazine['total_pericyazine']/ccg_pericyazine['total_antipsy'])
 ccg_pericyazine.head(5)
 
 # + trusted=true
@@ -90,7 +90,7 @@ latest_ccg.to_csv(exportfile,index=False)
 
 
 # + trusted=true
-#create choropeth map of pericyazine rx per 1000 antipsychotic prescriptions using bespoke map function (derived from ebmdatalab library)
+#create choropeth map of cost per 1000 patients using bespoke map function (derived from ebmdatalab library)
 
 def ccg_map_bespoke(
     df,
@@ -223,9 +223,9 @@ def ccg_map_bespoke(
 # + trusted=true
 plt = ccg_map_bespoke(
     ccg_pericyazine, 
-    title="Pericyclazine items per 1000 antipsychotic prescriptions\n(June-August 2017)", 
+    title="Percentage of antipsychotic items as pericyazine\n(June-August 2017)", 
     map_year = '2018',
-    column='pericyazine_per_1000_items', region='East of England', separate_region=True,
+    column='percent_pericyazine', region='East of England', separate_region=True,
     plot_options={'cmap': 'coolwarm'}
     )
 exportfile = os.path.join("..","data","pericyazine_map.png")
