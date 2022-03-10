@@ -16,10 +16,11 @@
 
 # ## Antipsychotic outlier prescribing
 
-# This notebook identifies practices as part of our outlier detection who prescribed promazine and pericyazine.
+# This notebook identifies practices prescribing promazine and pericyazine and plots the proportions per CCG on a map.
 
 # + trusted=true
 #import libraries required for analysis
+
 import os
 import pandas as pd
 import numpy as np
@@ -37,7 +38,7 @@ import warnings
 
 # #### Data Extract
 #
-# Here we identify all promazine prescribing.
+# Here we identify all pericyazine and promazine prescribing, alongside total antipsychotic prescribing.
 
 # + trusted=true
 sql = """
@@ -72,9 +73,9 @@ ORDER BY
   practice
 """
 
-anti_psy = bq.cached_read(sql, csv_path='anti_psy_df.csv')
+anti_psy = bq.cached_read(sql, csv_path=os.path.join("..","data","anti_psy_df.csv"))
+# -
 
-# + trusted=true
 ccg_anti_psy = anti_psy.groupby(['pct', 'ccg_name']).sum().reset_index()
 ccg_anti_psy['promazine_per_1000_items'] = 1000* (ccg_anti_psy['total_promazine']/ccg_anti_psy['total_antipsy'])
 ccg_anti_psy['pericyazine_per_1000_items'] = 1000* (ccg_anti_psy['total_pericyazine']/ccg_anti_psy['total_antipsy'])
@@ -212,7 +213,7 @@ def ccg_map_bespoke(
     return plt
 
 
-# + trusted=true
+# +
 plt = ccg_map_bespoke(
     ccg_anti_psy, 
     title="b) promazine items per 1000 antipsychotic prescriptions\n(June-August 2017)", 
@@ -220,9 +221,9 @@ plt = ccg_map_bespoke(
     column='promazine_per_1000_items', region='North West', separate_region=True,
     plot_options={'cmap': 'coolwarm'}
     )
-exportfile = os.path.join("..","data","promazine_map.png")
+exportfile = os.path.join("..","output","promazine_map.png")
 plt.savefig(exportfile, dpi=300)
-# + trusted=true
+# +
 plt = ccg_map_bespoke(
     ccg_anti_psy, 
     title="a) pericyazine items per 1000 antipsychotic prescriptions\n(June-August 2017)", 
@@ -230,8 +231,8 @@ plt = ccg_map_bespoke(
     column='pericyazine_per_1000_items', region='East of England', separate_region=True,
     plot_options={'cmap': 'coolwarm'}
     )
-exportfile = os.path.join("..","data","pericyazine_map.png")
+exportfile = os.path.join("..","output","pericyazine_map.png")
 plt.savefig(exportfile, dpi=300)
 
-# -
+# + trusted=true
 
