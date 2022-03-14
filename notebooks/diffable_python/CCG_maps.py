@@ -74,8 +74,8 @@ ORDER BY
 """
 
 anti_psy = bq.cached_read(sql, csv_path=os.path.join("..","data","anti_psy_df.csv"))
-# -
 
+# + trusted=true
 ccg_anti_psy = anti_psy.groupby(['pct', 'ccg_name']).sum().reset_index()
 ccg_anti_psy['promazine_per_1000_items'] = 1000* (ccg_anti_psy['total_promazine']/ccg_anti_psy['total_antipsy'])
 ccg_anti_psy['pericyazine_per_1000_items'] = 1000* (ccg_anti_psy['total_pericyazine']/ccg_anti_psy['total_antipsy'])
@@ -213,7 +213,7 @@ def ccg_map_bespoke(
     return plt
 
 
-# +
+# + trusted=true
 plt = ccg_map_bespoke(
     ccg_anti_psy, 
     title="b) promazine items per 1000 antipsychotic prescriptions\n(June-August 2017)", 
@@ -223,7 +223,7 @@ plt = ccg_map_bespoke(
     )
 exportfile = os.path.join("..","output","promazine_map.png")
 plt.savefig(exportfile, dpi=300)
-# +
+# + trusted=true
 plt = ccg_map_bespoke(
     ccg_anti_psy, 
     title="a) pericyazine items per 1000 antipsychotic prescriptions\n(June-August 2017)", 
