@@ -1,31 +1,15 @@
-# EBM DataLab's skeleton notebook environment
+# Kurtosis and similar methods for identifying outliers in prescribing
 
-## Getting started with this skeleton project
+This repo supports our paper looking for usual prescribing patterns across every chemical prescribed in England (using national GP prescribing data). We report illustrative results focusing on two antipsychotics, pericyazine and promazine. 
 
-This is a skeleton project for creating a reproducible, cross-platform
-analysis notebook, using Docker.  It also includes:
+## How to view the results
 
-* configuration for `jupytext`, to support easier code review
-* cross-platform startup scripts
-* best practice folder structure and documentation
-
-Developers and analysts using this skeleton for new development should
-refer to [`DEVELOPERS.md`](DEVELOPERS.md) for instructions on getting
-started.  Update this `README.md` so it is a suitable introduction to
-your project.
-
-If you have not yet installed Docker, please see the [`INSTALLATION_GUIDE.md`](INSTALLATION_GUIDE.md)
-
-## How to view the notebooks
-
-Notebooks live in the `notebooks/` folder (with an `ipynb`
-extension). You can most easily view them [on
+Analysis and results are together in Jupyter notebooks. Notebooks live in the `notebooks/` folder (with an `ipynb` extension). You can most easily view them [on
 nbviewer](https://nbviewer.jupyter.org/github/ebmdatalab/<repo>/tree/master/notebooks/),
 though looking at them in Github should also work.
 
-To do development work, you'll need to set up a local jupyter server
-and git repository - see `DEVELOPERS.md` for more detail.
+The main analysis is within [Kurtosis - pericyazine](https://github.com/ebmdatalab/kurtosis-pericyazine/blob/tidying/notebooks/Kurtosis%20-%20pericyazine.ipynb). Geographic maps showing usage across England are created in [CCG maps](https://github.com/ebmdatalab/kurtosis-pericyazine/blob/tidying/notebooks/CCG_maps.ipynb).
 
 ## How to cite
 
-XXX Please change to either a paper (if published) or the repo. You may find it helpful to use Zenodo DOI (see [`DEVELOPERS.md`](DEVELOPERS.md#how-to-invite-people-to-cite) for further information)
+Please cite our paper (when published) or this repo. 
