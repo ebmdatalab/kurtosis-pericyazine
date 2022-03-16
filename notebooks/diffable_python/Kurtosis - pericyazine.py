@@ -33,14 +33,14 @@ INNER JOIN ebmdatalab.hscic.ccgs c ON p.pct = c.code AND c.org_type = "CCG"
 '''
 # see chemical_by_subpara.sql for data source production
 
-df1 = bq.cached_read(q, csv_path=os.path.join("..","data","df1.csv"))
+df1 = bq.cached_read(q, csv_path=os.path.join("..","data","df1.csv"), use_cache=True)
 # rows: pct, chemical, subpara, num, denom, ratio (num and denom are items not quantity)
 
 q2 = '''SELECT DISTINCT chemical, chemical_code from ebmdatalab.hscic.bnf'''
-chem = bq.cached_read(q2, csv_path=os.path.join("..","data","chemical.csv"))
+chem = bq.cached_read(q2, csv_path=os.path.join("..","data","chemical.csv"), use_cache=True)
 
 q3 = '''SELECT DISTINCT subpara, subpara_code from ebmdatalab.hscic.bnf'''
-subp = bq.cached_read(q3, csv_path=os.path.join("..","data","subpara.csv"))
+subp = bq.cached_read(q3, csv_path=os.path.join("..","data","subpara.csv"), use_cache=True)
 
 df1.head()
 # -
