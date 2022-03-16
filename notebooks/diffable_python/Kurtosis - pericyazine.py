@@ -20,11 +20,12 @@
 #
 # Chemicals are then ranked by (a) their kurtosis and (b) a ratio between inter-centile differences, in order to identify those with extreme distributions, i.e. outliers. 
 
-# +
+# + trusted=true
 
 import pandas as pd
 import numpy as np
-GBQ_PROJECT_ID = '620265099307'
+from ebmdatalab import bq
+import os
 
 q = '''SELECT p.* FROM ebmdatalab.outlier_detection.chem_by_subpara_by_ccg_juntoaug17_limitsubpara p
 -- exclude non-standard CCG codes:
@@ -32,14 +33,14 @@ INNER JOIN ebmdatalab.hscic.ccgs c ON p.pct = c.code AND c.org_type = "CCG"
 '''
 # see chemical_by_subpara.sql for data source production
 
-df1 = pd.io.gbq.read_gbq(q, GBQ_PROJECT_ID, dialect='standard')
+df1 = bq.cached_read(q, csv_path=os.path.join("..","data","df1.csv"))
 # rows: pct, chemical, subpara, num, denom, ratio (num and denom are items not quantity)
 
 q2 = '''SELECT DISTINCT chemical, chemical_code from ebmdatalab.hscic.bnf'''
-chem = pd.io.gbq.read_gbq(q2, GBQ_PROJECT_ID, dialect='standard')
+chem = bq.cached_read(q2, csv_path=os.path.join("..","data","chemical.csv"))
 
 q3 = '''SELECT DISTINCT subpara, subpara_code from ebmdatalab.hscic.bnf'''
-subp = pd.io.gbq.read_gbq(q3, GBQ_PROJECT_ID, dialect='standard')
+subp = bq.cached_read(q3, csv_path=os.path.join("..","data","subpara.csv"))
 
 df1.head()
 # -
