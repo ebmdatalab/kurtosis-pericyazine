@@ -47,7 +47,7 @@ df1.head()
 
 # ## Clean the data: sort out null denominators
 
-# +
+# + trusted=true
 # need to flag where ccgs have not prescribed any items of the denominator in order to clean the data. 
 
 # Step 1: amend the datafrome to include a line for every CCG and every chemical and subparagraph,, even if not prescribed.
@@ -99,7 +99,7 @@ data2.head()
 
 # ### Filter out low numbers (chemical and subpara)
 
-# +
+# + trusted=true
 # total prescribing for each chemical
 # sum numerators to find total volume for each chemical across all ccgs
 num = pd.DataFrame(df1["num"].groupby(df1["chemical"]).sum()).reset_index()
@@ -133,7 +133,7 @@ data3.head()
 # ## Calculate key stats
 # ### Median, Range, SD, Kurtosis and Skew
 
-# +
+# + trusted=true
 #select columns of interest and get key stats
 df2 = pd.DataFrame(data3.groupby(["chemical","subpara","num_total","num centile","denom_subpara_total","denom centile","count2"])["ratio"].describe())
 #df2 = df2.unstack()
@@ -145,7 +145,6 @@ df3 = df3[["chemical","subpara","num_total","num centile","denom_subpara_total",
 
 # filter out chemicals in paragraphs only prescribed by few CCGs
 df3 = df3.loc[df3["count"]>=50]
-
 
 # reshape data to put CCGs in columns
 df5 = data3.pivot(index="chemical",columns='pct', values='ratio')
@@ -159,10 +158,12 @@ sk =  pd.Series(stats.skew(df5, axis=1,nan_policy="omit"),name="skew")
 result = pd.concat([df3, k, sk], axis=1).sort_values(by="kurtosis",ascending=False)
 result = result[["chemical","subpara", "count","count2","num_total","num centile","median","min","max","range","std","kurtosis","skew"]].round(2)
 
+
 # Lookup chemical and subparagraph names
 df4 = result.merge(chem, how="left", left_on = "chemical",right_on="chemical_code",suffixes=(""," name"))
 df4 = df4.merge(subp, how="left", left_on = "subpara",right_on="subpara_code",suffixes=(""," name"))
 df4 = df4[["chemical","chemical name","subpara","subpara name","num_total","num centile", "count","count2","median","min","max","range", "std","kurtosis","skew"]].round(2)
+df4["subpara"] = df4["subpara"].fillna(0).astype(int).astype(str)
 
 df4.head()
 # -
@@ -170,7 +171,7 @@ df4.head()
 # ## Ranking Chemicals by Range, Kurtosis, Skew and SD
 # Those with high SD tend to be chemicals where there is general disagreement, so outliers are not *that* unusual
 
-# + scrolled=true
+# + scrolled=true trusted=true
 # limit to those with positive skew, i.e. most CCGs prescribe few and those prescribing more are ouliers,
 # and range at least 10%:
 
@@ -201,7 +202,7 @@ r1.sort_values(by="K").head(20)
 
 # ### Add hyperlinks to maps
 
-# +
+# + trusted=true
 # assign overall scores based on all three rankings
 
 r2 = r1.copy()
@@ -216,7 +217,7 @@ rc.head()
 
 # note: links go to up-to-date maps and can only show chemical/para not subpara. 
 
-# +
+# + trusted=true
 
 links = rc.copy().head(50)
 links["str"] = links["subpara"].str[0:2].map(int).map(str)+"."+links["subpara"].str[2:4].map(int).map(str)+"."+links["subpara"].str[4:6].map(int).map(str)
@@ -232,7 +233,7 @@ links
 
 # ### Histograms
 
-# +
+# + trusted=true
 # plot top 50 only
 ## exclude practice IDs etc and select only lists of figures to plot:
 dfh = rc[["chemical","chemical name","subpara name","count","count2","score","kurtosis","num_total"]].head(50).merge(data3[["chemical","ratio"]], on="chemical").drop("chemical",axis=1)#.sort_values(by="chemical name")
@@ -253,7 +254,7 @@ from textwrap import wrap # this will interpret "\n" as newline
 ## use facetgrid to create a grid of charts. 
 # "chemical name" column is used to split data across charts. 
 #### note it's also possible to set hue="columnname" to show multiple data groupings on one chart split by colour. 
-g = sns.FacetGrid(dfh, col="chemical name",col_wrap=3,sharey=True,sharex=False,size=5)
+g = sns.FacetGrid(dfh, col="chemical name",col_wrap=3,sharey=True,sharex=False,height=5)
 
 ## define histograms to plot:
 g.map(sns.distplot, "ratio", kde=False, bins=20, hist_kws={"color": '#81c5e2', "alpha": .6}) 
@@ -281,7 +282,7 @@ plt.show()
 # ## Ranking chemicals by percentile differences / IQR etc.
 # First Calculate various percentiles
 
-# +
+# + trusted=true
 dftest = df5.transpose()
 q = [0.03,0.05,0.25,0.5,0.75,0.95,0.97]
 
@@ -303,7 +304,7 @@ smy0.head()
 # ### Chemicals with largest ratio of 95-97th percentiles to 50-95th percentiles and with mode = 0
 # A large difference between the top-prescribing CCGs and the mid-high prescribing CCGs will indicate that there are several CCGs prescribing well above average levels.
 
-# +
+# + trusted=true
 smy2 = smy0.copy()
 smy2["95-97"] = smy2["97%"]-smy2["95%"]
 smy2["50-95"] = smy2["95%"]-smy2["50%"]
@@ -322,7 +323,7 @@ smy2.sort_values(by="ratio2",ascending=False).head(10)
 
 # ### Histograms for top chemicals by percentile ratio (95-97th:50-95th) and with mode = 0
 
-# +
+# + trusted=true
 ## exclude practice IDs etc and select only lists of figures to plot:
 dfh = smy2.sort_values(by="ratio2",ascending=False).head(25)
 dfh = dfh[["chemical","chemical name","subpara name","kurtosis","ratio2"]].merge(data3[["chemical","ratio"]], on="chemical")#.sort_values(by="chemical name")
@@ -342,7 +343,7 @@ from textwrap import wrap # this will interpret "\n" as newline
 ## use facetgrid to create a grid of charts. 
 # "chemical name" column is used to split data across charts. 
 #### note it's also possible to set hue="columnname" to show multiple data groupings on one chart split by colour. 
-g = sns.FacetGrid(dfh, col="chemical name",col_wrap=3,sharey=True,sharex=False,size=5)
+g = sns.FacetGrid(dfh, col="chemical name",col_wrap=3,sharey=True,sharex=False,height=5)
 
 ## define histograms to plot:
 g.map(sns.distplot, "ratio", kde=False, bins=20, hist_kws={"color": '#81c5e2', "alpha": .6}) 
@@ -365,6 +366,3 @@ for ax, title in zip(g.axes.flat, titles):
 plt.subplots_adjust(left=0.15, top=0.8, hspace = 0.3)
 
 plt.show()
-
-# + collapsed=true jupyter={"outputs_hidden": true} trusted=true
-
