@@ -218,6 +218,8 @@ rc.head()
 # note: links go to up-to-date maps and can only show chemical/para not subpara. 
 
 # + trusted=true
+# NBVAL_IGNORE_OUTPUT
+# ^this is a magic comment to help tests pass
 
 links = rc.copy().head(50)
 links["str"] = links["subpara"].str[0:2].map(int).map(str)+"."+links["subpara"].str[2:4].map(int).map(str)+"."+links["subpara"].str[4:6].map(int).map(str)
