@@ -1,6 +1,6 @@
 # Kurtosis and similar methods for identifying outliers in prescribing
 
-This repo supports our paper looking for usual prescribing patterns across every chemical prescribed in England (using national GP prescribing data). We report illustrative results focusing on two antipsychotics, pericyazine and promazine. 
+This repo supports our paper "A hypothesis-free data science approach to identifying novel patterns of clinical interest in clinicians’ treatment preferences: clusters of high Pericyazine and Promazine use in England". Here we looked for usual prescribing patterns across every chemical prescribed in England (using national GP prescribing data) and report illustrative results focusing on two antipsychotics, pericyazine and promazine. 
 
 ## How to view the results
 
