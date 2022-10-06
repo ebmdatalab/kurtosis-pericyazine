@@ -7,8 +7,7 @@ Here we looked for usual prescribing patterns across every chemical prescribed i
 ## How to view the results
 
 Analysis and results are together in Jupyter notebooks. Notebooks live in the `notebooks/` folder (with an `ipynb` extension). You can most easily view them [on
-nbviewer](https://nbviewer.jupyter.org/github/ebmdatalab/<repo>/tree/master/notebooks/),
-though looking at them in Github should also work.
+nbviewer](https://nbviewer.jupyter.org/github/ebmdatalab/<repo>/tree/master/notebooks/), though looking at them in Github should also work.
 
 The main analysis is within [Kurtosis - pericyazine](https://github.com/ebmdatalab/kurtosis-pericyazine/blob/master/notebooks/Kurtosis%20-%20pericyazine.ipynb). Geographic maps showing usage across England are created in [CCG maps](https://github.com/ebmdatalab/kurtosis-pericyazine/blob/master/notebooks/CCG_maps.ipynb).
 
