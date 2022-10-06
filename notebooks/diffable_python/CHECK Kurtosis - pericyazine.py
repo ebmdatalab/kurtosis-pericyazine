@@ -368,6 +368,11 @@ print(f"Starting with {num_chemicals_stage6} chemicals")
 print( "Filtering by modal proportion == 0")
 print(f"{num_chemicals_lost_67} chemicals are removed due to modal proportion constraints")
 print(f"We are left with {num_chemicals_stage7} chemicals")
+print(f"--- Chemical filter stage 7 -> 8 ---")
+print(f"Starting with {num_chemicals_stage7} chemicals")
+print( "Merging with dfp")
+print(f"{num_chemicals_lost_78} chemicals are removed after dfp merge")
+print(f"We are left with {num_chemicals_stage8} chemicals")
 
 
 # + trusted=true
@@ -379,19 +384,19 @@ from matplotlib.lines import Line2D  # for legend handle
 
 smy2["r_rank"]  = smy2["ratio2"].rank(ascending=False, method="min")
 smy2["k_rank"]  = smy2["kurtosis"].rank(ascending=False, method="min")
+num_chemicals_plotted = smy2['chemical'].nunique()
 
 n_to_label = 5
 
 data_to_plot = smy2[['ratio2','kurtosis','chemical name','r_rank','k_rank']].rename(columns={"chemical name":"label", "ratio2":"ratio"})
 data_to_plot.set_index('label', inplace=True)
 
+
 ## Which chemicals to highlight?
 data_to_plot['group'] = f"Rank > {n_to_label}"
 data_to_plot.loc[(data_to_plot.r_rank<=n_to_label)|(data_to_plot.k_rank<=n_to_label), 'group'] = 'Rank <= 5'
 colour_map = {f"Rank <= {n_to_label}":'orange', f"Rank > {n_to_label}":'grey'}
 alpha_map = {f"Rank <= {n_to_label}":1, f"Rank > {n_to_label}":0.4}
-
-figure(figsize=(10, 4), dpi=200)
 
 fig, ax = plt.subplots()
 
@@ -405,8 +410,8 @@ handles = [Line2D([0], [0], marker='o', color='w', markerfacecolor=v, label=k, m
 ax.legend(title='', handles=handles, loc='lower right')
 plt.xlabel("high:mid centile ratio", weight="bold")
 plt.ylabel("Kurtosis", weight="bold")
-plt.title(f"Top ranking (rank <= {n_to_label}) chemicals (by high:mid centile ratio or kurtosis)", weight="bold", y=1.05)
-
+plt.suptitle(f"Outlier metrics for all candidate chemicals (n={num_chemicals_plotted})", weight="bold", x=0.125, y=0.99, horizontalalignment="left")
+plt.title(f"high:mid centile ratio and kurtosis", x=0, y=1.04, horizontalalignment='left' )
 plt.gcf().set_size_inches(8, 6)
 
 plt.savefig('ratio_kurtosis_plot.png', dpi=300, bbox_inches='tight')
@@ -437,6 +442,11 @@ smy2 = smy2[["chemical","ratio2","25%"]].merge(dfp, on="chemical")
 smy2["M2"]  = smy2["ratio2"].rank(ascending=False, method="min")
 
 smy2.sort_values(by="ratio2",ascending=False).head(10)
+
+
+
+num_chemicals_stage8 = smy2['chemical'].nunique()
+num_chemicals_lost_78 = num_chemicals_stage7 - num_chemicals_stage8
 
 # -
 
