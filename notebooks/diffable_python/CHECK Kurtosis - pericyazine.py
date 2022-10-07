@@ -438,6 +438,80 @@ plt.show()
 
 
 # + trusted=true
+x = data_to_plot['ratio']
+y = data_to_plot['kurtosis']
+c = data_to_plot['group'].map(colour_map)
+a = alpha=data_to_plot['group'].map(alpha_map)
+
+def scatter_hist(x, y, c, a, ax, ax_histx, ax_histy, x_bins, y_bins):
+    # no labels
+    ax_histx.tick_params(axis="x", labelbottom=False)
+    ax_histy.tick_params(axis="y", labelleft=False)
+
+    # the scatter plot:
+    ax.scatter(x, y, color=c, alpha=a)
+
+    ax_histx.hist(x, bins=x_bins)
+    ax_histy.hist(y, bins=y_bins, orientation='horizontal')
+    
+
+# Start with a square Figure.
+fig = plt.figure(figsize=(6, 6))
+# Add a gridspec with two rows and two columns and a ratio of 1 to 4 between
+# the size of the marginal axes and the main axes in both directions.
+# Also adjust the subplot parameters for a square plot.
+gs = fig.add_gridspec(2, 2,  width_ratios=(4, 1), height_ratios=(1, 4),
+                      left=0.1, right=0.9, bottom=0.1, top=0.9,
+                      wspace=0.05, hspace=0.05)
+# Create the Axes.
+ax = fig.add_subplot(gs[1, 0])
+plt.xlabel("high:mid centile ratio", weight="bold")
+plt.ylabel("Kurtosis", weight="bold")
+ax_histx = fig.add_subplot(gs[0, 0], sharex=ax)
+plt.ylabel("Fequency", weight="bold")
+ax_histy = fig.add_subplot(gs[1, 1], sharey=ax)
+plt.xlabel("Fequency", weight="bold")
+
+# Draw the scatter plot and marginals.
+scatter_hist(x, y,
+             c, a,
+             ax, ax_histx, ax_histy,
+             x_bins = np.arange(0,2,0.05),
+             y_bins = np.arange(0,130,5) )
+
+
+for k, v in data_to_plot.iterrows():
+    if v.group == f"Rank <= {n_to_label}":
+        if ( k in ['Tolbutamide', 'Cefadroxil'] ):
+            ax.annotate(k, (v['ratio'], v['kurtosis']), textcoords="offset points", xytext=(0,15), ha='center' )
+        elif ( k in ['Mefloquine hydrochloride'] ):
+            ax.annotate(k, (v['ratio'], v['kurtosis']), textcoords="offset points", xytext=(0,15), ha='left' )
+        elif ( k in ['Pericyazine'] ):
+            ax.annotate(k, (v['ratio'], v['kurtosis']), textcoords="offset points", xytext=(0,-20), ha='center', weight="bold" )
+        elif ( k in ['Levofloxacin'] ):
+            ax.annotate(k, (v['ratio'], v['kurtosis']), textcoords="offset points", xytext=(0,-20), ha='center' )
+        elif ( k in ['Other vitamin B compound preparations'] ):
+            ax.annotate(k, (v['ratio'], v['kurtosis']), textcoords="offset points", xytext=(-20,-20), ha='left' )
+        elif ( k in ['Isotretinoin','Balsalazide sodium'] ):
+            ax.annotate(k, (v['ratio'], v['kurtosis']), textcoords="offset points", xytext=(10,0), ha='left' )
+        elif ( k in ['Promazine hydrochloride'] ):
+            ax.annotate(k, (v['ratio'], v['kurtosis']), textcoords="offset points", xytext=(30,-20), ha='right', weight="bold")
+        else:
+            ax.annotate(k, (v['ratio'], v['kurtosis']), textcoords="offset points", xytext=(20,-20), ha='right', rotation=30)
+
+handles = [Line2D([0], [0], marker='o', color='w', markerfacecolor=v, label=k, markersize=8) for k, v in colour_map.items()]
+ax.legend(title='', handles=handles, loc=[1.029,1.03])
+# plt.xlabel("high:mid centile ratio", weight="bold")
+# plt.ylabel("Kurtosis", weight="bold")
+plt.suptitle(f"Outlier metrics for all candidate chemicals (n={num_chemicals_plotted})", weight="bold", x=0.1, y=0.95, horizontalalignment="left")
+# plt.title(f"high:mid centile ratio and kurtosis", x=0, y=1.04, horizontalalignment='left' )
+plt.gcf().set_size_inches(8, 6)
+
+plt.savefig('ratio_kurtosis_plot_with_histograms.png', dpi=300, bbox_inches='tight')
+
+plt.show()
+
+# + trusted=true
 smy2 = smy0.copy()
 smy2["95-97"] = smy2["97%"]-smy2["95%"]
 smy2["50-95"] = smy2["95%"]-smy2["50%"]
