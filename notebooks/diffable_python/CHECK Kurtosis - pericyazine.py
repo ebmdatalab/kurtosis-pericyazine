@@ -43,6 +43,9 @@ q3 = '''SELECT DISTINCT subpara, subpara_code from ebmdatalab.hscic.bnf'''
 subp = bq.cached_read(q3, csv_path=os.path.join("..","data","subpara.csv"), use_cache=True)
 
 df1.head()
+
+num_CCGs = df1.pct.nunique()
+
 # -
 
 # ## Clean the data: sort out null denominators
@@ -95,6 +98,7 @@ data2 = d2.loc[(d2["denom_subpara"]!=0)]
 data2 = data2.fillna(0)
 data2.head()
 
+# print( f"Number of CCGs in data2: {data2.pct.nunique()}")
 # -
 
 # ### Filter out low numbers (chemical and subpara)
@@ -121,7 +125,8 @@ data3 = data3.merge(d3, how="inner", on="subpara",suffixes=("","_total"))
 num_chemicals_stage0 = data3['chemical'].nunique()
 
 # filter out CCGs with lowest denominator values
-data3 = data3.loc[(data3["denom centile"]>2)]
+national_count_minimum = 1000
+data3 = data3.loc[(data3["denom centile"]>2) & (data3["num_total"]>national_count_minimum)]
 
 num_chemicals_stage1 = data3['chemical'].nunique()
 num_chemicals_lost_01 = num_chemicals_stage0 - num_chemicals_stage1
@@ -133,6 +138,7 @@ count_ = count_.rename(columns={"pct":"count2"})
 data3 = data3.merge(count_, how="inner", on="chemical")
 
 data3.head()
+
 # -
 
 # ## Calculate key stats
@@ -348,6 +354,16 @@ smy0.head()
 # A large difference between the top-prescribing CCGs and the mid-high prescribing CCGs will indicate that there are several CCGs prescribing well above average levels.
 
 # + trusted=true
+
+smy0[['mode','50%']].plot.kde()
+plt.axvline(x=0,c="grey",ls='--')
+smy0[['mode','50%']].hist()
+
+smy0[['mode']].min()
+smy0[['50%']].min()
+
+
+# + trusted=true
 print(f"--- Chemical filter stage 0 -> 1 ---")
 print(f"Starting with {num_chemicals_stage0} chemicals")
 print( "Filtering by decile (>2)")
@@ -421,7 +437,6 @@ plt.show()
 
 
 
-
 # + trusted=true
 smy2 = smy0.copy()
 smy2["95-97"] = smy2["97%"]-smy2["95%"]
@@ -431,7 +446,13 @@ smy2["ratio2"] = smy2["95-97"]/smy2["50-95"]
 num_chemicals_stage6 = smy2['chemical'].nunique()
 
 # limit to those where mode is zero
-smy2 = smy2.loc[smy2["mode"]==0]
+num_mode = sum(smy2["mode"]==0)
+num_median = sum(smy2["50%"]<0.1)
+print( f"Using the mode: {num_mode}" )
+print( f"Using the median: {num_median}" )
+
+# smy2 = smy2.loc[smy2["mode"]==0]
+smy2 = smy2.loc[smy2["50%"]<0.1]
 
 num_chemicals_stage7 = smy2['chemical'].nunique()
 num_chemicals_lost_67 = num_chemicals_stage6 - num_chemicals_stage7
