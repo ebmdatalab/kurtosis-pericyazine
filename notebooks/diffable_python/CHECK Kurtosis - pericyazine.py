@@ -363,31 +363,36 @@ smy0[['50%']].min()
 
 
 # + trusted=true
-print(f"--- Chemical filter stage 0 -> 1 ---")
-print(f"Starting with {num_chemicals_stage0} chemicals")
-print( "Filtering by decile (>2)")
-print(f"{num_chemicals_lost_01} chemicals are removed from the bottom two deciles")
-print(f"We are left with {num_chemicals_stage1} chemicals")
-print(f"--- Chemical filter stage 2 -> 3 ---")
-print(f"Starting with {num_chemicals_stage2} chemicals")
-print( "Filtering by CCG numbers (>=50)")
-print(f"{num_chemicals_lost_23} chemicals are removed due to low CCG numbers")
-print(f"We are left with {num_chemicals_stage3} chemicals")
-print(f"--- Chemical filter stage 4 -> 5 ---")
-print(f"Starting with {num_chemicals_stage4} chemicals")
-print( "Filtering by positive skew and range > 10%")
-print(f"{num_chemicals_lost_45} chemicals are removed due to skew/range filtering")
-print(f"We are left with {num_chemicals_stage5} chemicals")
-print(f"--- Chemical filter stage 6 -> 7 ---")
-print(f"Starting with {num_chemicals_stage6} chemicals")
-print( "Filtering by modal proportion == 0")
-print(f"{num_chemicals_lost_67} chemicals are removed due to modal proportion constraints")
-print(f"We are left with {num_chemicals_stage7} chemicals")
-print(f"--- Chemical filter stage 7 -> 8 ---")
-print(f"Starting with {num_chemicals_stage7} chemicals")
-print( "Merging with dfp")
-print(f"{num_chemicals_lost_78} chemicals are removed after dfp merge")
-print(f"We are left with {num_chemicals_stage8} chemicals")
+smy2 = smy0.copy()
+smy2["95-97"] = smy2["97%"]-smy2["95%"]
+smy2["50-95"] = smy2["95%"]-smy2["50%"]
+smy2["ratio2"] = smy2["95-97"]/smy2["50-95"]
+
+num_chemicals_stage6 = smy2['chemical'].nunique()
+
+# limit to those where mode is zero
+num_mode = sum(smy2["mode"]==0)
+num_median = sum(smy2["50%"]<0.1)
+print( f"Using the mode: {num_mode}" )
+print( f"Using the median: {num_median}" )
+
+# smy2 = smy2.loc[smy2["mode"]==0]
+smy2 = smy2.loc[smy2["50%"]<0.1]
+
+num_chemicals_stage7 = smy2['chemical'].nunique()
+num_chemicals_lost_67 = num_chemicals_stage6 - num_chemicals_stage7
+
+
+smy2 = smy2.reset_index()
+smy2 = smy2[["chemical","ratio2","25%"]].merge(dfp, on="chemical")
+smy2["M2"]  = smy2["ratio2"].rank(ascending=False, method="min")
+
+smy2.sort_values(by="ratio2",ascending=False).head(10)
+
+
+
+num_chemicals_stage8 = smy2['chemical'].nunique()
+num_chemicals_lost_78 = num_chemicals_stage7 - num_chemicals_stage8
 
 
 # + trusted=true
@@ -506,39 +511,6 @@ plt.gcf().set_size_inches(8, 6)
 plt.savefig('ratio_kurtosis_plot_with_histograms.png', dpi=300, bbox_inches='tight')
 
 plt.show()
-
-# + trusted=true
-smy2 = smy0.copy()
-smy2["95-97"] = smy2["97%"]-smy2["95%"]
-smy2["50-95"] = smy2["95%"]-smy2["50%"]
-smy2["ratio2"] = smy2["95-97"]/smy2["50-95"]
-
-num_chemicals_stage6 = smy2['chemical'].nunique()
-
-# limit to those where mode is zero
-num_mode = sum(smy2["mode"]==0)
-num_median = sum(smy2["50%"]<0.1)
-print( f"Using the mode: {num_mode}" )
-print( f"Using the median: {num_median}" )
-
-# smy2 = smy2.loc[smy2["mode"]==0]
-smy2 = smy2.loc[smy2["50%"]<0.1]
-
-num_chemicals_stage7 = smy2['chemical'].nunique()
-num_chemicals_lost_67 = num_chemicals_stage6 - num_chemicals_stage7
-
-
-smy2 = smy2.reset_index()
-smy2 = smy2[["chemical","ratio2","25%"]].merge(dfp, on="chemical")
-smy2["M2"]  = smy2["ratio2"].rank(ascending=False, method="min")
-
-smy2.sort_values(by="ratio2",ascending=False).head(10)
-
-
-
-num_chemicals_stage8 = smy2['chemical'].nunique()
-num_chemicals_lost_78 = num_chemicals_stage7 - num_chemicals_stage8
-
 # -
 
 # ### Histograms for top chemicals by percentile ratio (95-97th:50-95th) and with mode = 0
@@ -585,3 +557,31 @@ for ax, title in zip(g.axes.flat, titles):
 plt.subplots_adjust(left=0.15, top=0.8, hspace = 0.3)
 
 plt.show()
+
+# + trusted=true
+print(f"--- Chemical filter stage 0 -> 1 ---")
+print(f"Starting with {num_chemicals_stage0} chemicals")
+print( "Filtering by decile (>2)")
+print(f"{num_chemicals_lost_01} chemicals are removed from the bottom two deciles")
+print(f"We are left with {num_chemicals_stage1} chemicals")
+print(f"--- Chemical filter stage 2 -> 3 ---")
+print(f"Starting with {num_chemicals_stage2} chemicals")
+print( "Filtering by CCG numbers (>=50)")
+print(f"{num_chemicals_lost_23} chemicals are removed due to low CCG numbers")
+print(f"We are left with {num_chemicals_stage3} chemicals")
+print(f"--- Chemical filter stage 4 -> 5 ---")
+print(f"Starting with {num_chemicals_stage4} chemicals")
+print( "Filtering by positive skew and range > 10%")
+print(f"{num_chemicals_lost_45} chemicals are removed due to skew/range filtering")
+print(f"We are left with {num_chemicals_stage5} chemicals")
+print(f"--- Chemical filter stage 6 -> 7 ---")
+print(f"Starting with {num_chemicals_stage6} chemicals")
+print( "Filtering by modal proportion == 0")
+print(f"{num_chemicals_lost_67} chemicals are removed due to modal proportion constraints")
+print(f"We are left with {num_chemicals_stage7} chemicals")
+print(f"--- Chemical filter stage 7 -> 8 ---")
+print(f"Starting with {num_chemicals_stage7} chemicals")
+print( "Merging with dfp")
+print(f"{num_chemicals_lost_78} chemicals are removed after dfp merge")
+print(f"We are left with {num_chemicals_stage8} chemicals")
+
