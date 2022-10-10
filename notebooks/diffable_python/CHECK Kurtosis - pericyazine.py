@@ -21,7 +21,6 @@
 # Chemicals are then ranked by (a) their kurtosis and (b) a ratio between inter-centile differences, in order to identify those with extreme distributions, i.e. outliers. 
 
 # + trusted=true
-
 import pandas as pd
 import numpy as np
 from ebmdatalab import bq
@@ -392,10 +391,7 @@ print(f"We are left with {num_chemicals_stage8} chemicals")
 
 
 # + trusted=true
-
 import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
 from matplotlib.lines import Line2D  # for legend handle
 
 smy2["r_rank"]  = smy2["ratio2"].rank(ascending=False, method="min")
@@ -560,7 +556,6 @@ titles = titles["title"]
 
 
 
-import matplotlib.pyplot as plt
 import seaborn as sns
 from textwrap import wrap # this will interpret "\n" as newline
 
