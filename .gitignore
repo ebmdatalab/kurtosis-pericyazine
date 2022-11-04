@@ -20,7 +20,7 @@ __pycache__/
 *~
 
 # Trash location
-.Trash-0/info/
+.Trash-0/
 
 # don't push outputs to keep things tidy
 output/
