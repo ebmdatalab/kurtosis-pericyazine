@@ -18,3 +18,9 @@ __pycache__/
 
 # Emacs
 *~
+
+# Trash location
+.Trash-0/info/
+
+# don't push outputs to keep things tidy
+output/
