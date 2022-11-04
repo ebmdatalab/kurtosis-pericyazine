@@ -13,6 +13,9 @@
 #     display_name: Python 3
 #     language: python
 #     name: python3
+#   vscode:
+#     interpreter:
+#       hash: de1343822d6e7d7aeea8796be9d48304b0fa3610166e8740495ec86b33c71a9e
 # ---
 
 # ## Antipsychotic outlier prescribing
@@ -83,7 +86,6 @@ national_promazine = 100 * (national_results['total_promazine']/national_results
 
 print( f"The prescription rate for pericyazine nationally is {national_pericyazine.round(1)} %" )
 print( f"The prescription rate for promazine nationally is {national_promazine.round(1)} %" )
-
 
 
 # + trusted=true

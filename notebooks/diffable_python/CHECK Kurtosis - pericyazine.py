@@ -12,6 +12,9 @@
 #     display_name: Python 3
 #     language: python
 #     name: python3
+#   vscode:
+#     interpreter:
+#       hash: de1343822d6e7d7aeea8796be9d48304b0fa3610166e8740495ec86b33c71a9e
 # ---
 
 # # Kurtosis and similar methods for identifying outliers in prescribing
@@ -431,11 +434,17 @@ plt.suptitle(f"Outlier metrics for all candidate chemicals (n={num_chemicals_plo
 plt.title(f"high:mid centile ratio and kurtosis", x=0, y=1.04, horizontalalignment='left' )
 plt.gcf().set_size_inches(8, 6)
 
-plt.savefig('ratio_kurtosis_plot.png', dpi=300, bbox_inches='tight')
+plt.savefig('ratio_kurtosis_plot.png', dpi=200, bbox_inches='tight')
 
 plt.show()
 
 
+
+
+# + trusted=true
+
+print( smy2.loc[smy2['chemical name'] == 'Pericyazine', ['chemical name', 'r_rank', 'k_rank']] )
+print( smy2.loc[smy2['chemical name'] == 'Promazine hydrochloride', ['chemical name', 'r_rank', 'k_rank']] )
 
 
 # + trusted=true
@@ -504,7 +513,7 @@ handles = [Line2D([0], [0], marker='o', color='w', markerfacecolor=v, label=k, m
 ax.legend(title='', handles=handles, loc=[1.029,1.03])
 # plt.xlabel("high:mid centile ratio", weight="bold")
 # plt.ylabel("Kurtosis", weight="bold")
-plt.suptitle(f"Outlier metrics for all candidate chemicals (n={num_chemicals_plotted})", weight="bold", x=0.1, y=0.95, horizontalalignment="left")
+plt.suptitle(f"Outlier metrics for all candidate chemicals (N={num_chemicals_plotted})", weight="bold", x=0.1, y=0.95, horizontalalignment="left")
 # plt.title(f"high:mid centile ratio and kurtosis", x=0, y=1.04, horizontalalignment='left' )
 plt.gcf().set_size_inches(8, 6)
 
