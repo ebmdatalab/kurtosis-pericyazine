@@ -19,7 +19,7 @@
 
 # # Kurtosis and similar methods for identifying outliers in prescribing
 
-# +
+# + trusted=true
 ### LH: modified from 'Kurtosis - pericyazine.ipynb'
 # -
 
@@ -406,9 +406,9 @@ ax = fig.add_subplot(gs[1, 0])
 plt.xlabel("high:mid centile ratio", weight="bold")
 plt.ylabel("Kurtosis", weight="bold")
 ax_histx = fig.add_subplot(gs[0, 0], sharex=ax)
-plt.ylabel("Fequency", weight="bold")
+plt.ylabel("Frequency", weight="bold")
 ax_histy = fig.add_subplot(gs[1, 1], sharey=ax)
-plt.xlabel("Fequency", weight="bold")
+plt.xlabel("Frequency", weight="bold")
 
 # draw the scatter plot and marginals
 scatter_hist(x, y,
