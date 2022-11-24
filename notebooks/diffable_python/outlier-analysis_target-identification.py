@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
@@ -365,9 +366,9 @@ data_to_plot.set_index('label', inplace=True)
 
 ## Which chemicals to highlight?
 data_to_plot['group'] = f"Rank > {n_to_label}"
-data_to_plot.loc[(data_to_plot.r_rank<=n_to_label)|(data_to_plot.k_rank<=n_to_label), 'group'] = 'Rank <= 5'
-colour_map = {f"Rank <= {n_to_label}":'orange', f"Rank > {n_to_label}":'grey'}
-alpha_map = {f"Rank <= {n_to_label}":1, f"Rank > {n_to_label}":0.4}
+data_to_plot.loc[(data_to_plot.r_rank<=n_to_label)|(data_to_plot.k_rank<=n_to_label), 'group'] = 'Rank ≤ 5'
+colour_map = {f"Rank ≤ {n_to_label}":'orange', f"Rank > {n_to_label}":'grey'}
+alpha_map = {f"Rank ≤ {n_to_label}":1, f"Rank > {n_to_label}":0.4}
 
 
 

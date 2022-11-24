@@ -14,7 +14,7 @@ convert pericyazine_map_resized.png -gravity North -chop 0x100 pericyazine_map_r
 
 convert -flatten pericyazine_map_resized2.png pericyazine_map_resized2+noalpha.png
 
-convert pericyazine_map_resized2+noalpha.png -gravity NorthWest -pointsize 45 -annotate +0+0 '(a)' pericyazine_map_resized2+noalpha+labelled.png 
+convert pericyazine_map_resized2+noalpha.png -gravity NorthWest -pointsize 45 -annotate +0+0 '(A)' pericyazine_map_resized2+noalpha+labelled.png 
 
 
 # PROMAZINE - B
@@ -25,7 +25,7 @@ convert promazine_map_resized.png -gravity North -chop 0x100 promazine_map_resiz
 
 convert -flatten promazine_map_resized2.png promazine_map_resized2+noalpha.png
 
-convert promazine_map_resized2+noalpha.png -gravity NorthWest -pointsize 45 -annotate +0+0 '(b)' promazine_map_resized2+noalpha+labelled.png 
+convert promazine_map_resized2+noalpha.png -gravity NorthWest -pointsize 45 -annotate +0+0 '(B)' promazine_map_resized2+noalpha+labelled.png 
 
 # COMBINE
 convert pericyazine_map_resized2+noalpha+labelled.png promazine_map_resized2+noalpha+labelled.png -append pericyazine+promazine_choropleth-maps.png
