@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # ---
 # jupyter:
 #   jupytext:
@@ -365,9 +366,9 @@ data_to_plot.set_index('label', inplace=True)
 
 ## Which chemicals to highlight?
 data_to_plot['group'] = f"Rank > {n_to_label}"
-data_to_plot.loc[(data_to_plot.r_rank<=n_to_label)|(data_to_plot.k_rank<=n_to_label), 'group'] = 'Rank <= 5'
-colour_map = {f"Rank <= {n_to_label}":'orange', f"Rank > {n_to_label}":'grey'}
-alpha_map = {f"Rank <= {n_to_label}":1, f"Rank > {n_to_label}":0.4}
+data_to_plot.loc[(data_to_plot.r_rank<=n_to_label)|(data_to_plot.k_rank<=n_to_label), 'group'] = 'Rank ≤ 5'
+colour_map = {f"Rank ≤ {n_to_label}":'orange', f"Rank > {n_to_label}":'grey'}
+alpha_map = {f"Rank ≤ {n_to_label}":1, f"Rank > {n_to_label}":0.4}
 
 
 
@@ -419,7 +420,7 @@ scatter_hist(x, y,
 
 # specify the location of chemical names manually so that labels don't clash
 for k, v in data_to_plot.iterrows():
-    if v.group == f"Rank <= {n_to_label}":
+    if v.group == f"Rank ≤ {n_to_label}":
         if ( k in ['Tolbutamide', 'Cefadroxil'] ):
             ax.annotate(k, (v['ratio'], v['kurtosis']), textcoords="offset points", xytext=(0,15), ha='center' )
         elif ( k in ['Mefloquine hydrochloride'] ):
