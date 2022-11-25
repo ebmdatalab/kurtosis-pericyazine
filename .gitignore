@@ -18,3 +18,6 @@ __pycache__/
 
 # Emacs
 *~
+
+# Trash location
+.Trash-0/
