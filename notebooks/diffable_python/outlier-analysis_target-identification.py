@@ -420,7 +420,7 @@ scatter_hist(x, y,
 
 # specify the location of chemical names manually so that labels don't clash
 for k, v in data_to_plot.iterrows():
-    if v.group == f"Rank <= {n_to_label}":
+    if v.group == f"Rank ≤ {n_to_label}":
         if ( k in ['Tolbutamide', 'Cefadroxil'] ):
             ax.annotate(k, (v['ratio'], v['kurtosis']), textcoords="offset points", xytext=(0,15), ha='center' )
         elif ( k in ['Mefloquine hydrochloride'] ):
