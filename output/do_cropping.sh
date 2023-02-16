@@ -32,4 +32,6 @@ convert pericyazine_map_resized2+noalpha+labelled.png promazine_map_resized2+noa
 
 magick pericyazine+promazine_choropleth-maps.png -resize 80% pericyazine+promazine_choropleth-maps_TOC.png
 
+# REMOVE intermediate plots
+rm *_resized*.png
 
