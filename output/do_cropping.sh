@@ -1,5 +1,14 @@
 #!/bin/bash
 
+### Modified figures generated for publication
+### Journal: JMIR
+### Includes:
+### - resizing
+### - removing transparency
+### - removing white space
+### - adding panel labels
+### - combining panels vertically into one plot
+
 # Figure 1
 
 magick ratio_kurtosis_plot_with_histograms.png -resize 55% ratio_kurtosis_plot_with_histograms_resized.png
@@ -32,4 +41,6 @@ convert pericyazine_map_resized2+noalpha+labelled.png promazine_map_resized2+noa
 
 magick pericyazine+promazine_choropleth-maps.png -resize 80% pericyazine+promazine_choropleth-maps_TOC.png
 
+# REMOVE intermediate plots
+rm *_resized*.png
 
